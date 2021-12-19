@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row">
+    <div id="successAlert" name="message" class="alert alert-success text-center" role="alert" style="display:none;"></div>
+	<div id="errorAlert" name="message" class="alert alert-danger text-center" role="alert" style="display:none;"></div>
+    <div class="col-lg-4">
+        <div class="card border-primary bg-primary mb-3">
+            <div class="card-header text-light text-bold"><strong>Add an Expense</strong></div>
+            <div class="card-body">
+
+                <form method="POST" id="expenseform">
+                    <fieldset>
+                        <div class="form-floating mb-2">
+                            <input type="text" name='expense_name' id="expense_name" class="form-control" placeholder="name@example.com" required>
+                            <label for="expense_name">Expense Name</label>
+                        </div>
+                        <div class="form-floating mb-2">
+                            <input type="number" class="form-control" name="amount" id="amount" placeholder="name@example.com" required>
+                            <label for="amount">Amount</label>
+                        </div>
+                        <div class="form-group">
+                            <label for="category" class="form-label text-light">Category</label>
+                            <select class="form-select" name="category" id="category" required>
+                            <option value="">Select a Category</option>
+                            {% for category in categories %}
+                                <option value="{{ category.id }}">{{ category.category_name }}</option>
+                            {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group mb-2">
+                            <label for="note" class="form-label text-light">Note</label>
+                            <textarea class="form-control" name="note" id="note" rows="3" placeholder="Enter a note"></textarea>
+                        </div>
+                        <div class="form-floating mb-2">
+                            <input type="date" class="form-control" id="expense_date" name="expense_date" placeholder="name@example.com" required>
+                            <label for="expense_date">Spent On</label>
+                        </div>
+                        
+                      <button type="submit" class="btn btn-block btn-success mt-2 w-100">Add</button>
+                    </fieldset>
+                </form>
+            </div>
+        </div>  
+    </div>
+    <div class="col-lg-8">
+        
+        <table id="expense_table" class="table table-hover table-light table-sm table-responsive text-center">
+            <thead class="table-primary">
+              <tr>
+                <th scope="col">Expense Name</th>
+                <th scope="col">Amount</th>
+                <th scope="col">Category</th>
+                <th colspan="2" scope="col">Note</th>
+                <th scope="col">Spent On</th>
+                <th scope="col">Actions</th>
+              </tr>
+            </thead>
+            {% if expenses|length > 0 %}
+            
+            <tbody>
+                {% for expense in expenses %}
+                <tr>
+                    <td>{{ expense.expense_name }}</td>
+                    <td>{{ expense.amount }}</td>
+                    <td>{{ categories[expense.category_id-1].category_name }}</td> <!-- Get a category from categories using category id from expense instance -->
+                    <td colspan="2">{{ expense.note }}</td>
+                    <td>{{ expense.expense_date }}</td>
+                    <td>
+                        <a href="{{ url_for('update', expense_id=expense.id) }}" class="btn btn-warning mb-1" role="button"><i class="fa fa-edit"></i></a>
+                        <form action="{{ url_for('delete') }}" method="POST">
+                            <input type="hidden" name="expense_id" id="expense_id" value="{{ expense.id }}"/>
+                            <button type="submit" name="btn_delete" class="btn btn-danger"><i class="fa fa-trash"></i></button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            {% else %}
+                <p class="text-center">No records to show.</p>
+            {% endif %}
+        </table>
+    </div>
+
+    <div id="piechart" class="col-md-12 w-100 text-center">
+        <img src="{{plot}}">
+    </div>
+</div>
+{% endblock content %}
+
+{% block custom_scripts %}
+    <script>
+        $('#expenseform').on('submit', function (event) {
+            $.ajax({
+                data: {
+                    expense_name: $('#expense_name').val(),
+                    amount: $('#amount').val(),
+                    category: $('#category').val(),
+                    expense_date: $('#expense_date').val(),
+                    note: $('#note').val()
+                },
+                type: 'POST',
+                url: '{{ url_for("create") }}'
+            })
+            .done(function (data) {
+
+                if (data.error) {
+                    $('#errorAlert').text(data.error).show();
+                    $('#successAlert').hide();
+                }
+                else {
+                    $('#successAlert').text(data.success).show();
+                    $('#errorAlert').hide();
+
+                    $("#expense_table").load(location.href + " #expense_table");
+                    $("#piechart").load(location.href + " #piechart");
+                }
+
+                setTimeout(function () {
+                    $("div.alert").fadeOut('slow');
+                }, 3000);
+
+            });
+    
+            event.preventDefault();
+    
+        });
+    </script>
+{% endblock custom_scripts %}

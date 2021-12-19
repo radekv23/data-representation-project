@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="d-flex justify-content-center">
+    <div class="card border-primary bg-primary mb-3 w-50">
+        <div class="card-header text-light text-bold"><strong>Update an Expense</strong></div>
+        <div class="card-body">
+            <div id="successAlert" name="message" class="alert alert-success text-center" role="alert" style="display:none;"></div>
+            <div id="errorAlert" name="message" class="alert alert-danger text-center" role="alert" style="display:none;"></div>
+            <form method="POST" id="expenseUpdateForm">
+                <fieldset>
+                    <div class="form-floating mb-2">
+                        <input type="text" name='expense_name' id="expense_name" value="{{ expense.expense_name }}" class="form-control" placeholder="name@example.com" required>
+                        <label for="expense_name">Expense Name</label>
+                    </div>
+                    <div class="form-floating mb-2">
+                        <input type="number" class="form-control" name="amount" id="amount" value="{{ expense.amount }}" placeholder="name@example.com" required>
+                        <label for="amount">Amount</label>
+                    </div>
+                    <div class="form-group">
+                        <label for="category" class="form-label text-light">Category</label>
+                        <select class="form-select" name="category" id="category" required>
+                        <option value="">Select a Category</option>
+                        {% for category in categories %}
+                            {% if category.id == expense.category_id %}
+                                <option value="{{ category.id }}" selected>{{ category.category_name }}</option>
+                            {% else %}
+                                <option value="{{ category.id }}">{{ category.category_name }}</option>
+                            {% endif %}
+                        {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group mb-2">
+                        <label for="note" class="form-label text-light">Note</label>
+                        <textarea class="form-control" name="note" id="note" rows="3" placeholder="Enter a note">{{ expense.note }}</textarea>
+                    </div>
+                    <div class="form-floating mb-2">
+                        <input type="date" class="form-control" id="expense_date" name="expense_date" value="{{ expense.expense_date }}" placeholder="name@example.com" required>
+                        <label for="expense_date">Spent On</label>
+                    </div>
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-success mt-2 w-50">Update</button>
+                        <a href="{{ url_for('index') }}" role="button" class="btn btn-warning mt-2 w-50">Go Back</a>
+                    </div>
+                </fieldset>
+            </form>
+        </div>
+    </div> 
+</div>
+{% endblock content %}
+
+{% block custom_scripts %}
+<script>
+    $('#expenseUpdateForm').on('submit', function (event) {
+        $.ajax({
+            data: {
+                expense_name: $('#expense_name').val(),
+                amount: $('#amount').val(),
+                category: $('#category').val(),
+                expense_date: $('#expense_date').val(),
+                note: $('#note').val()
+            },
+            type: 'POST',
+            url: "{{ url_for('update', expense_id=expense.id) }}"
+        })
+        .done(function (data) {
+
+            if (data.error) {
+                $('#errorAlert').text(data.error).show();
+                $('#successAlert').hide();
+            }
+            else {
+                $('#successAlert').text(data.success).show();
+                $('#errorAlert').hide();
+            }
+
+            setTimeout(function () {
+                $("div.alert").fadeOut('slow');
+            }, 3000);
+
+        });
+
+        event.preventDefault();
+
+    });
+</script>
+{% endblock custom_scripts %}

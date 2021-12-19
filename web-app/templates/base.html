@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Bootstrap CSS -->
+    <link
+      href="{{ url_for('static', filename='css/bootstrap.min.css') }}"
+      rel="stylesheet"
+    />
+    <!-- <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/font-awesome.min.css') }}"
+    /> -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/prism-okaidia.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/custom.min.css') }}"
+    />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <title>Expense Tracker</title>
+  </head>
+  <body>
+    {% include 'includes/_navbar.html' %}
+    
+    <div class="container">
+      {% include "includes/_messages.html" %}
+      {% block content %}{% endblock content %}
+    </div>
+    
+    
+    <script
+      src="https://code.jquery.com/jquery-3.6.0.min.js"
+      integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+      crossorigin="anonymous"
+    ></script>
+    <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+    <script
+      src="{{ url_for('static', filename='js/prism.js') }}"
+      data-manual
+    ></script>
+    <script src="{{ url_for('static', filename='js/custom.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block custom_scripts %}{% endblock custom_scripts %}
+  </body>
+</html>

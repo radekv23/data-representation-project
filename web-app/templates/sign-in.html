@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="d-flex justify-content-center">
+  <div class="card border-primary mb-3 w-50">
+    <div class="card-header text-center"><h4>Sign in</h4></div>
+    <div class="card-body">
+        <div id="successAlert" name="message" class="alert alert-success text-center" role="alert" style="display:none;"></div>
+        <div id="errorAlert" name="message" class="alert alert-danger text-center" role="alert" style="display:none;"></div>
+        {% if 'logged_in' not in session %}
+        <form method="POST" id="loginForm">
+            <fieldset>
+              <div class="form-group">
+                <label for="email" class="form-label">Email address</label>
+                <input type="email" class="form-control" id="email" aria-describedby="emailHelp" placeholder="Enter email" required>
+              </div>
+              <div class="form-group">
+                <label for="password" class="form-label">Password</label>
+                <input type="password" class="form-control" id="password" placeholder="Password" required>
+              </div>
+              <div class="text-center">
+                <button type="submit" class="btn btn-primary mt-2">Sign In</button><br>
+                <small class="text-muted">Not registered? <a href="{{ url_for('register') }}">Sign Up</a></small>
+              </div>
+            </fieldset>
+        </form>
+        {% else %}
+            <div class="text-center">
+                You are already signed in. To sign out click
+                <form action="{{ url_for('sign_out') }}" class="text-center" method="POST">
+                    <button class="btn btn-sm" type="submit">here</button>
+                </form>
+            </div>
+        {% endif %}
+    </div>
+</div>
+</div>
+{% endblock content %}
+
+{% block custom_scripts %}
+    <script>
+        $('#loginForm').on('submit', function (event) {
+            $.ajax({
+                data: {
+                    email: $('#email').val(),
+                    password: $('#password').val()
+                },
+                type: 'POST',
+                url: "{{ url_for('sign_in') }}"
+            })
+            .done(function (data) {
+
+                if (data.error) {
+                    $('#errorAlert').text(data.error).show();
+                    $('#successAlert').hide();
+                }
+                else {
+                    $('#successAlert').text(data.success).show();
+                    $('#errorAlert').hide();
+
+                    setTimeout(function() {
+                        window.location.href = "{{ url_for('index') }}"
+                    }, 2000);
+                }
+
+                setTimeout(function () {
+                    $("div.alert").fadeOut('slow');
+                }, 3000);
+
+            });
+    
+            event.preventDefault();
+    
+        });
+    </script>
+{% endblock custom_scripts %}

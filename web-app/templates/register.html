@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="d-flex justify-content-center">
+    <div class="card border-primary mb-3 w-50">
+      <div class="card-header text-center"><h4>Register</h4></div>
+      <div class="card-body">
+            <div id="successAlert" name="message" class="alert alert-success text-center" role="alert" style="display:none;"></div>
+            <div id="errorAlert" name="message" class="alert alert-danger text-center" role="alert" style="display:none;"></div>
+            {% if 'logged_in' not in session %}
+                <form method="POST" id="registerForm">
+                    <fieldset>
+                        <div class="form-group">
+                            <label for="username" class="form-label">Username</label>
+                            <input type="text" class="form-control" name="username" id="username" aria-describedby="emailHelp" placeholder="Enter Username" required>
+                        </div>
+                        <div class="form-group">
+                        <label for="email" class="form-label">Email address</label>
+                        <input type="email" class="form-control" id="email" name="email" aria-describedby="emailHelp" placeholder="Enter email" required>
+                        </div>
+                        <div class="form-group">
+                        <label for="password" class="form-label">Password</label>
+                        <input type="password" class="form-control" name="password" id="password" placeholder="Password" required>
+                        </div>
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-primary mt-2">Register</button><br>
+                            <small class="text-muted">Already registered? <a href="{{ url_for('sign_in') }}">Sign In</a></small>
+                        </div>
+                    </fieldset>
+                </form>
+            {% else %}
+                <div class="text-center">
+                    You are already signed in and cannot register. 
+                    <form action="{{ url_for('sign_out') }}" class="text-center" method="POST">
+                        <button class="btn btn-sm" type="submit">Click here</button>
+                    </form> to sign out
+                </div>
+            {% endif %}
+      </div>
+  </div>
+</div>
+{% endblock content %}
+{% block custom_scripts %}
+    <script>
+        $('#registerForm').on('submit', function (event) {
+            $.ajax({
+                data: {
+                    username: $('#username').val(),
+                    email: $('#email').val(),
+                    password: $('#password').val()
+                },
+                type: 'POST',
+                url: "{{ url_for('register') }}"
+            })
+            .done(function (data) {
+
+                if (data.error) {
+                    $('#errorAlert').text(data.error).show();
+                    $('#successAlert').hide();
+                }
+                else {
+                    $('#successAlert').text(data.success).show();
+                    $('#errorAlert').hide();
+                }
+
+                setTimeout(function () {
+                    $("div.alert").fadeOut('slow');
+                }, 3000);
+
+            });
+    
+            event.preventDefault();
+    
+        });
+    </script>
+{% endblock custom_scripts %}
